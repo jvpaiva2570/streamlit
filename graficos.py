@@ -17,6 +17,6 @@ def gerar_grafico(caminhoes, dfs_caminhoes):
         color="white",
     )
     ax.set_ylim(0, 100)
-    ax.tick_params(axis="x", colors="white", rotation=45, labelsize=5)
-    ax.tick_params(axis="y", colors="white", labelsize=5)
+    ax.tick_params(axis="x", colors="Black", rotation=45, labelsize=5)
+    ax.tick_params(axis="y", colors="Black", labelsize=5)
     st.pyplot(fig)
