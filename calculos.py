@@ -1,17 +1,3 @@
-import streamlit as st
-import matplotlib.pyplot as plt
-import numpy as np
-
-# Configuração da página
-st.set_page_config(
-    page_title="Dimensionamento da Frota de Caminhões",
-    layout="wide",
-    initial_sidebar_state="collapsed",
-)
-
-# Tema escuro (configurado no arquivo config.toml)
-
-
 def calcular_tempo_total(qtd_servicos, tempo_por_servico):
     """Calcula o tempo total gasto em um tipo de serviço."""
     return qtd_servicos * tempo_por_servico
@@ -53,13 +39,13 @@ def calcular_df(tempo_total_parado):
 
 def calcular_utilizacao(dados_caminhao):
     """
-    Calcula a utilização e a hora não utilizada de um caminhão.
+    Calcula a utilização, a hora não utilizada e as horas trabalhadas de um caminhão.
     
     Args:
       dados_caminhao: Dicionário com os dados do caminhão.
 
     Returns:
-      Tupla contendo a utilização (em %) e as horas não utilizadas.
+      Tupla contendo a utilização (em %), as horas não utilizadas e as horas trabalhadas.
     """
 
     dias_programados = 365  # Informação fixa da planilha
@@ -134,5 +120,3 @@ def calcular_tempo_perdido(dados_caminhao):
     tempo_perdido["Troca de Turno"] = calcular_tempo_total(dados_caminhao["qtd_troca_turno"], 0.5)
 
     return tempo_perdido
-
-# ... (código do main.py) ...
