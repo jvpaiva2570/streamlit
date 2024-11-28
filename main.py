@@ -1,6 +1,11 @@
 import streamlit as st
 
-from calculos import calcular_tempo_parado, calcular_df, calcular_utilizacao, calcular_tempo_perdido, calcular_tempo_total
+from calculos import (
+    calcular_tempo_parado,
+    calcular_df,
+    calcular_utilizacao,
+    calcular_tempo_perdido,
+)
 from graficos import gerar_grafico
 
 # Configuração da página
@@ -57,7 +62,7 @@ with col1:
                 "qtd_troca_turno": 0,
                 "perc_absenteismo": 0.0,
                 "perc_treinamento": 0.0,
-                "qtd_hnu": 0, # adicionando a quantidade de horas não utilizadas
+                "qtd_hnu": 0,  # adicionando a quantidade de horas não utilizadas
             }
             st.session_state.dados_caminhoes.append(dados_caminhao)
 
@@ -66,7 +71,7 @@ with col1:
             with st.expander(
                 f"Configurações do caminhão {caminhao}", expanded=True
             ):
-                
+
                 # Campos para o usuário inserir a quantidade de cada tipo de serviço e parada
                 dados_caminhao["qtd_250h"] = st.number_input(
                     f"Qtd Preventiva 250h ({caminhao})",
@@ -93,7 +98,6 @@ with col1:
                     step=1,
                 )
 
-                
                 dados_caminhao["taxa_corretiva"] = (
                     st.number_input(
                         f"Taxa Corretiva (%) ({caminhao})",
@@ -103,7 +107,7 @@ with col1:
                     )
                     / 100
                 )
-                
+
                 # ... (outros campos de parada) ...
                 dados_caminhao["qtd_sem_operador"] = st.number_input(
                     f"Qtd Sem Operador ({caminhao})",
@@ -135,7 +139,7 @@ with col1:
                     value=dados_caminhao.get("qtd_troca_turno", 0),
                     step=1,
                 )
-                
+
                 # Campos para o usuário inserir o percentual de absenteísmo e treinamento
                 dados_caminhao["perc_absenteismo"] = st.number_input(
                     f"Percentual Absenteísmo (%) ({caminhao})",
@@ -153,7 +157,7 @@ with col1:
                     step=0.1,
                     format="%.1f",
                 )
-                
+
                 dados_caminhao["qtd_hnu"] = st.number_input(
                     f"Qtd HNU ({caminhao})",
                     min_value=0,
@@ -161,12 +165,12 @@ with col1:
                     step=1,
                 )
 
-                # ... (outros campos) ...
-
                 # Calcula e exibe a utilização, horas não utilizadas e horas trabalhadas
-                utilizacao, horas_nao_utilizadas, horas_trabalhadas = calcular_utilizacao(
-                    dados_caminhao
-                )
+                (
+                    utilizacao,
+                    horas_nao_utilizadas,
+                    horas_trabalhadas,
+                ) = calcular_utilizacao(dados_caminhao)
                 st.write(f"Utilização: {utilizacao:.2f}%")
                 st.write(f"Horas não utilizadas: {horas_nao_utilizadas:.2f}")
                 st.write(f"Horas trabalhadas: {horas_trabalhadas:.2f}")
