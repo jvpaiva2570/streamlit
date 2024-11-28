@@ -36,11 +36,6 @@ with col1:
     # Lista suspensa para selecionar o caminhão
     selected_caminhao = st.sidebar.selectbox("Selecione o caminhão:", caminhoes)
 
-    st.sidebar.subheader("Utilização")
-    horas_trabalhadas = st.sidebar.number_input(
-        "Horas trabalhadas:", min_value=0, value=7000, step=1
-    )
-
     # Loop para coletar as informações de cada caminhão
     for i, caminhao in enumerate(caminhoes):
         # Verifica se já existem dados para este caminhão na session_state
@@ -60,9 +55,9 @@ with col1:
                 "qtd_parada_climatica": 0,
                 "qtd_almoco": 0,
                 "qtd_troca_turno": 0,
-                "qtd_treinamento": 0,
                 "perc_absenteismo": 0.0,
                 "perc_treinamento": 0.0,
+                "qtd_hnu": 0, # adicionando a quantidade de horas não utilizadas
             }
             st.session_state.dados_caminhoes.append(dados_caminhao)
 
@@ -158,15 +153,23 @@ with col1:
                     step=0.1,
                     format="%.1f",
                 )
+                
+                dados_caminhao["qtd_hnu"] = st.number_input(
+                    f"Qtd HNU ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao.get("qtd_hnu", 0),
+                    step=1,
+                )
 
                 # ... (outros campos) ...
 
-                # Calcula e exibe a utilização
-                utilizacao, horas_nao_utilizadas = calcular_utilizacao(
-                    dados_caminhao, horas_trabalhadas
+                # Calcula e exibe a utilização, horas não utilizadas e horas trabalhadas
+                utilizacao, horas_nao_utilizadas, horas_trabalhadas = calcular_utilizacao(
+                    dados_caminhao
                 )
                 st.write(f"Utilização: {utilizacao:.2f}%")
                 st.write(f"Horas não utilizadas: {horas_nao_utilizadas:.2f}")
+                st.write(f"Horas trabalhadas: {horas_trabalhadas:.2f}")
 
                 # Calcula e exibe o tempo perdido em cada operação
                 tempo_perdido = calcular_tempo_perdido(dados_caminhao)
