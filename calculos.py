@@ -1,3 +1,17 @@
+import streamlit as st
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Configuração da página
+st.set_page_config(
+    page_title="Dimensionamento da Frota de Caminhões",
+    layout="wide",
+    initial_sidebar_state="collapsed",
+)
+
+# Tema escuro (configurado no arquivo config.toml)
+
+
 def calcular_tempo_total(qtd_servicos, tempo_por_servico):
     """Calcula o tempo total gasto em um tipo de serviço."""
     return qtd_servicos * tempo_por_servico
@@ -61,16 +75,12 @@ def calcular_utilizacao(dados_caminhao):
     # calculado com base na taxa corretiva
     tempo_total_parado = calcular_tempo_parado(dados_caminhao)
 
-    # Tempo das novas paradas (considerando 8 horas por parada como exemplo)
+    # Tempo das novas paradas 
     tempo_sem_operador = calcular_tempo_total(dados_caminhao["qtd_sem_operador"], 8)
     tempo_parada_desmonte = calcular_tempo_total(dados_caminhao["qtd_parada_desmonte"], 8)
     tempo_parada_climatica = calcular_tempo_total(dados_caminhao["qtd_parada_climatica"], 8)
     tempo_almoco = calcular_tempo_total(dados_caminhao["qtd_almoco"], 1)  # 1 hora de almoço
     tempo_troca_turno = calcular_tempo_total(dados_caminhao["qtd_troca_turno"], 0.5)  # 0.5 horas por troca de turno
-
-    # Tempo de absenteísmo e treinamento (em horas) - precisa ser calculado depois das horas trabalhadas
-    # tempo_absenteismo = (dados_caminhao["perc_absenteismo"] / 100) * horas_trabalhadas
-    # tempo_treinamento = (dados_caminhao["perc_treinamento"] / 100) * horas_trabalhadas
 
     tempo_total_parado += (
         tempo_sem_operador
@@ -78,8 +88,6 @@ def calcular_utilizacao(dados_caminhao):
         + tempo_parada_climatica
         + tempo_almoco
         + tempo_troca_turno
-        # + tempo_absenteismo
-        # + tempo_treinamento
     )
 
     horas_disponiveis = (
@@ -120,4 +128,11 @@ def calcular_tempo_perdido(dados_caminhao):
     tempo_perdido["Parada Climática"] = calcular_tempo_total(dados_caminhao["qtd_parada_climatica"], 8)
 
     # Tempo perdido com almoço (considerando 1 hora por almoço)
-    tempo_perdido["Almoço"] = calcular_tempo
+    tempo_perdido["Almoço"] = calcular_tempo_total(dados_caminhao["qtd_almoco"], 1)
+
+    # Tempo perdido com troca de turno (considerando 0.5 horas por troca)
+    tempo_perdido["Troca de Turno"] = calcular_tempo_total(dados_caminhao["qtd_troca_turno"], 0.5)
+
+    return tempo_perdido
+
+# ... (código do main.py) ...
