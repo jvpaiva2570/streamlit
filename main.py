@@ -1,6 +1,6 @@
 import streamlit as st
 
-from calculos import calcular_tempo_parado, calcular_df, calcular_utilizacao, calcular_tempo_perdido
+from calculos import calcular_tempo_parado, calcular_df, calcular_utilizacao, calcular_tempo_perdido, calcular_tempo_total
 from graficos import gerar_grafico
 
 # Configuração da página
