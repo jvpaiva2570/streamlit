@@ -298,11 +298,27 @@ with col2:
     else:
         st.write("**Nenhum dado de caminhão disponível.**")
 
-# Cria uma nova aba
-st.set_page_config(page_title="Produtividade Horária", page_icon=":chart_with_upwards_trend:")
+# Cria uma nova página
+def pagina_produtividade():
+    # Define a configuração da página
+    st.set_page_config(
+        page_title="Produtividade Horária", page_icon=":chart_with_upwards_trend:"
+    )
 
-# Título da aba
-st.title("Cálculo da Produtividade Horária da Mina")
+    # Título da aba
+    st.title("Cálculo da Produtividade Horária da Mina")
+
+    # ... código da nova aba ...
+
+# Adiciona a nova página à barra de navegação
+st.sidebar.markdown("---")
+st.sidebar.markdown("<h3 style='text-align: center;'>Navegação</h3>", unsafe_allow_html=True)
+paginas = {
+    "Disponibilidade e Utilização": lambda: None,  # Página principal (não faz nada)
+    "Produtividade Horária": pagina_produtividade,
+}
+pagina_selecionada = st.sidebar.radio("Selecione a página:", list(paginas.keys()))
+paginas[pagina_selecionada]()
 
 # Coleta os dados de entrada do usuário
 st.header("Dados de Distância e Velocidade:")
