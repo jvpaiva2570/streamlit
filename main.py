@@ -1,32 +1,32 @@
 import streamlit as st
 
+
+from streamlit_multipage import MultiPage
 from calculos import (
     calcular_tempo_parado,
     calcular_df,
     calcular_utilizacao,
     calcular_tempo_perdido,
+    calcular_tempo_total,
     calcular_tempo_ciclo,
     calcular_tempo_ciclo_total,
     calcular_capacidade_liquida,
-    calcular_produtividade_horaria,
+    calcular_produtividade_horaria
 )
 from graficos import gerar_grafico, gerar_grafico_df_utilizacao
 
-
-# Configuração da página principal
+# Configuração da página
 st.set_page_config(
-    page_title="Mina Minério de Ferro",
+    page_title="mina minério de ferro",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
+# Tema escuro (configurado no arquivo config.toml)
+
 # Inicializa dados_caminhoes na session_state se não existir
 if "dados_caminhoes" not in st.session_state:
     st.session_state.dados_caminhoes = []
-
-# Inicializa a variável de estado da página
-if "pagina_atual" not in st.session_state:
-    st.session_state.pagina_atual = "Disponibilidade e Utilização"
 
 # Título principal
 st.markdown(
@@ -39,18 +39,6 @@ col1, col2 = st.columns([2, 1])  # Ajuste a proporção conforme necessário
 
 # Barra lateral com os parâmetros de entrada
 with st.sidebar:
-    # Navegação
-    st.sidebar.markdown("---")
-    st.sidebar.markdown("<h3 style='text-align: center;'>Navegação</h3>", unsafe_allow_html=True)
-    pagina = st.sidebar.radio(
-        "Selecione a página:", ("Disponibilidade e Utilização", "Produtividade Horária")
-    )
-
-    if pagina == "Disponibilidade e Utilização":
-        st.session_state.pagina_atual = "Disponibilidade e Utilização"
-    elif pagina == "Produtividade Horária":
-        st.session_state.pagina_atual = "Produtividade Horária"
-
     st.subheader("Parâmetros de Entrada")
     num_caminhoes = st.sidebar.slider(
         "Quantos caminhões sua frota possui?", 1, 20, 8, 1
@@ -62,7 +50,6 @@ with st.sidebar:
 
     # Loop para coletar as informações de cada caminhão
     for i, caminhao in enumerate(caminhoes):
-
         # Verifica se já existem dados para este caminhão na session_state
         if i < len(st.session_state.dados_caminhoes):
             dados_caminhao = st.session_state.dados_caminhoes[i]
@@ -220,103 +207,102 @@ col1, col2 = st.columns([2, 1])  # Divide o conteúdo principal em duas colunas
 
 # Subseção Gráficos
 with col1:
-    if st.session_state.pagina_atual == "Disponibilidade e Utilização":
-        st.subheader("Gráficos")
+    st.subheader("Gráficos")
 
-        # Calcula a DF após a atualização da lista de caminhões
-        dfs_caminhoes = []
-        utilizacoes = []  # Lista para armazenar as utilizações
-        for caminhao in caminhoes:  # Itera sobre a lista atualizada de caminhões
-            for dados in st.session_state.dados_caminhoes:
-                if (
-                    dados["caminhao"] == caminhao
-                ):  # Encontra os dados do caminhão
-                    try:
-                        tempo_total_parado = calcular_tempo_parado(dados)
-                        df = calcular_df(tempo_total_parado)
-                        dfs_caminhoes.append(df)
+    # Calcula a DF após a atualização da lista de caminhões
+    dfs_caminhoes = []
+    utilizacoes = []  # Lista para armazenar as utilizações
+    for caminhao in caminhoes:  # Itera sobre a lista atualizada de caminhões
+        for dados in st.session_state.dados_caminhoes:
+            if (
+                dados["caminhao"] == caminhao
+            ):  # Encontra os dados do caminhão
+                try:
+                    tempo_total_parado = calcular_tempo_parado(dados)
+                    df = calcular_df(tempo_total_parado)
+                    dfs_caminhoes.append(df)
 
-                        # Calcula a utilização e adiciona à lista
-                        (
-                            utilizacao,
-                            _,
-                            _,
-                            _,
-                        ) = calcular_utilizacao(dados_caminhao)
-                        utilizacoes.append(utilizacao)
+                    # Calcula a utilização e adiciona à lista
+                    (
+                        utilizacao,
+                        _,
+                        _,
+                        _,
+                    ) = calcular_utilizacao(dados_caminhao)
+                    utilizacoes.append(utilizacao)
 
-                    except ValueError:
-                        st.error(
-                            f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
-                        )
-                        # Interrompe o loop em caso de erro
-                        break
-                    break  # Sai do loop interno após encontrar os dados do caminhão
+                except ValueError:
+                    st.error(
+                        f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
+                    )
+                    # Interrompe o loop em caso de erro
+                    break
+                break  # Sai do loop interno após encontrar os dados do caminhão
 
-        # Gráfico com fundo ajustado dinamicamente, tamanho menor e rotação dos rótulos
-        if dfs_caminhoes:
-            gerar_grafico(caminhoes, dfs_caminhoes)
+    # Gráfico com fundo ajustado dinamicamente, tamanho menor e rotação dos rótulos
+    if dfs_caminhoes:
+        gerar_grafico(caminhoes, dfs_caminhoes)
 
-            # Gera o gráfico de DF x Utilização
-            gerar_grafico_df_utilizacao(caminhoes, dfs_caminhoes, utilizacoes)
+        # Gera o gráfico de DF x Utilização
+        gerar_grafico_df_utilizacao(caminhoes, dfs_caminhoes, utilizacoes)
 
 # Subseção Resumo
 with col2:
-    if st.session_state.pagina_atual == "Disponibilidade e Utilização":
-        st.subheader("Resumo")
+    st.subheader("Resumo")
 
-        # Calcula a DF após a atualização da lista de caminhões
-        dfs_caminhoes = []
-        for caminhao in caminhoes:  # Itera sobre a lista atualizada de caminhões
-            for dados in st.session_state.dados_caminhoes:
-                if (
-                    dados["caminhao"] == caminhao
-                ):  # Encontra os dados do caminhão
-                    try:
-                        tempo_total_parado = calcular_tempo_parado(dados)
-                        df = calcular_df(tempo_total_parado)
-                        dfs_caminhoes.append(df)
-                    except ValueError:
-                        st.error(
-                            f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
-                        )
-                        # Interrompe o loop em caso de erro
-                        break
-                    break  # Sai do loop interno após encontrar os dados do caminhão
+    # Calcula a DF após a atualização da lista de caminhões
+    dfs_caminhoes = []
+    for caminhao in caminhoes:  # Itera sobre a lista atualizada de caminhões
+        for dados in st.session_state.dados_caminhoes:
+            if (
+                dados["caminhao"] == caminhao
+            ):  # Encontra os dados do caminhão
+                try:
+                    tempo_total_parado = calcular_tempo_parado(dados)
+                    df = calcular_df(tempo_total_parado)
+                    dfs_caminhoes.append(df)
+                except ValueError:
+                    st.error(
+                        f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
+                    )
+                    # Interrompe o loop em caso de erro
+                    break
+                break  # Sai do loop interno após encontrar os dados do caminhão
 
-        # Resumo da disponibilidade centralizado e em destaque
+    # Resumo da disponibilidade centralizado e em destaque
+    st.markdown("<br>", unsafe_allow_html=True)
+    if dfs_caminhoes:
+        total_df = sum(dfs_caminhoes) / len(dfs_caminhoes)
+        total_utilizacao= sum(utilizacoes)/len(utilizacoes)
+    # Exibe a disponibilidade da frota em uma caixa com área sombreada
+        st.markdown(
+            f"""
+            <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
+                <h3 style="text-align: center;">Disponibilidade da Frota</h3>
+                <h2 style="text-align: center;">{total_df:.2f}%</h2>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        # Adiciona um espaçamento entre as caixas
         st.markdown("<br>", unsafe_allow_html=True)
-        if dfs_caminhoes:
-            total_df = sum(dfs_caminhoes) / len(dfs_caminhoes)
-            total_utilizacao = sum(utilizacoes) / len(utilizacoes)
-            # Exibe a disponibilidade da frota em uma caixa com área sombreada
-            st.markdown(
-                f"""
-                <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
-                    <h3 style="text-align: center;">Disponibilidade da Frota</h3>
-                    <h2 style="text-align: center;">{total_df:.2f}%</h2>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-            # Adiciona um espaçamento entre as caixas
-            st.markdown("<br>", unsafe_allow_html=True)
-            # Exibe a utilização da frota em outra caixa com área sombreada
-            st.markdown(
-                f"""
-                <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
-                    <h3 style="text-align: center;">Utilização da Frota</h3>
-                    <h2 style="text-align: center;">{total_utilizacao:.2f}%</h2>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
+        # Exibe a utilização da frota em outra caixa com área sombreada
+        st.markdown(
+            f"""
+            <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
+                <h3 style="text-align: center;">Utilização da Frota</h3>
+                <h2 style="text-align: center;">{total_utilizacao:.2f}%</h2>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+  
+    else:
+        st.write("**Nenhum dado de caminhão disponível.**")
 
-        else:
-            st.write("**Nenhum dado de caminhão disponível.**")
-
-# Função da página "Produtividade Horária"
+# Cria uma nova página
 def pagina_produtividade():
+
     # Título da aba
     st.title("Cálculo da Produtividade Horária da Mina")
 
@@ -372,4 +358,67 @@ def pagina_produtividade():
         tempo_horizontal_carregado = calcular_tempo_ciclo(
             distancia_horizontal, velocidade_horizontal_carregado
         )
-        tempo_horizontal_vazio
+        tempo_horizontal_vazio = calcular_tempo_ciclo(
+            distancia_horizontal, velocidade_horizontal_vazio
+        )
+        tempo_subida_carregado = calcular_tempo_ciclo(
+            distancia_subida, velocidade_subida_carregado
+        )
+        tempo_subida_vazio = calcular_tempo_ciclo(
+            distancia_subida, velocidade_subida_vazio
+        )
+        tempo_descida_carregado = calcular_tempo_ciclo(
+            distancia_descida, velocidade_descida_carregado
+        )
+        tempo_descida_vazio = calcular_tempo_ciclo(
+            distancia_descida, velocidade_descida_vazio
+        )
+
+        # Calcula o tempo total de ciclo
+        tempo_ciclo_total = calcular_tempo_ciclo_total(
+            tempo_horizontal_carregado + tempo_horizontal_vazio,
+            tempo_subida_carregado + tempo_subida_vazio,
+            tempo_descida_carregado + tempo_descida_vazio,
+        )
+
+        # Calcula a capacidade líquida do caminhão
+        capacidade_liquida = calcular_capacidade_liquida(
+            capacidade_caminhao, fator_enchimento
+        )
+
+        # Calcula a produtividade horária
+        produtividade_horaria = calcular_produtividade_horaria(
+            capacidade_liquida, tempo_ciclo_total
+        )
+
+        # Exibe os resultados
+        st.header("Resultados:")
+        st.write(
+            f"Tempo de Ciclo Horizontal Carregado: {tempo_horizontal_carregado:.2f} minutos"
+        )
+        st.write(
+            f"Tempo de Ciclo Horizontal Vazio: {tempo_horizontal_vazio:.2f} minutos"
+        )
+        st.write(f"Tempo de Ciclo Subida Carregado: {tempo_subida_carregado:.2f} minutos")
+        st.write(f"Tempo de Ciclo Subida Vazio: {tempo_subida_vazio:.2f} minutos")
+        st.write(
+            f"Tempo de Ciclo Descida Carregado: {tempo_descida_carregado:.2f} minutos"
+        )
+        st.write(f"Tempo de Ciclo Descida Vazio: {tempo_descida_vazio:.2f} minutos")
+        st.write(f"Tempo Total de Ciclo: {tempo_ciclo_total:.2f} minutos")
+        st.write(f"Capacidade Líquida do Caminhão: {capacidade_liquida:.2f} toneladas")
+        st.write(f"Produtividade Horária da Mina: {produtividade_horaria:.2f} Ton/h")
+
+    else:
+        st.error(
+            "Pelo menos uma distância ou velocidade deve ser maior que zero. Verifique os dados de entrada."
+        )
+# Mecanismo de navegação
+app = MultiPage()
+
+# Adiciona as páginas ao objeto MultiPage
+app.add_page("Disponibilidade e Utilização", lambda: None)  # Página principal
+app.add_page("Produtividade Horária", pagina_produtividade)
+
+# Executa o aplicativo MultiPage
+app.run()
