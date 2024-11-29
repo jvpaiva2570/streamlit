@@ -268,15 +268,27 @@ with col2:
     if dfs_caminhoes:
         total_df = sum(dfs_caminhoes) / len(dfs_caminhoes)
         total_utilizacao= sum(utilizacoes)/len(utilizacoes)
-        # Exibe a disponibilidade da frota em uma caixa
-        # Exibe a disponibilidade da frota em uma caixa
-        st.metric("Disponibilidade da Frota", f"{total_df:.2f}%")
+    # Exibe a disponibilidade da frota em uma caixa com área sombreada
+        st.markdown(
+            f"""
+            <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
+                <h3 style="text-align: center;">Disponibilidade da Frota</h3>
+                <h2 style="text-align: center;">{total_df:.2f}%</h2>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
 
-        # Adiciona um espaçamento entre as caixas
-        st.markdown("<br>", unsafe_allow_html=True)
-
-        # Exibe a utilização da frota em outra caixa
-        st.metric("Utilização da Frota", f"{total_utilizacao:.2f}%")
+    # Exibe a utilização da frota em outra caixa com área sombreada
+        st.markdown(
+            f"""
+            <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
+                <h3 style="text-align: center;">Utilização da Frota</h3>
+                <h2 style="text-align: center;">{total_utilizacao:.2f}%</h2>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
   
     else:
         st.write("**Nenhum dado de caminhão disponível.**")
