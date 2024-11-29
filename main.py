@@ -300,10 +300,6 @@ with col2:
 
 # Cria uma nova página
 def pagina_produtividade():
-    # Define a configuração da página
-    st.set_page_config(
-        page_title="Produtividade Horária", page_icon=":chart_with_upwards_trend:"
-    )
 
     # Título da aba
     st.title("Cálculo da Produtividade Horária da Mina")
