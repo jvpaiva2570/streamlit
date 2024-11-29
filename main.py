@@ -275,8 +275,8 @@ with col2:
         # Adiciona um espaçamento entre as caixas
         st.markdown("<br>", unsafe_allow_html=True)
 
-    # Exibe a utilização da frota em outra caixa
-    st.metric("Utilização da Frota", f"{total_utilizacao:.2f}%")
+        # Exibe a utilização da frota em outra caixa
+        st.metric("Utilização da Frota", f"{total_utilizacao:.2f}%")
   
     else:
         st.write("**Nenhum dado de caminhão disponível.**")
