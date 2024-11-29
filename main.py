@@ -25,6 +25,8 @@ st.set_page_config(
 # Tema escuro (configurado no arquivo config.toml)
 
 # Inicializa dados_caminhoes na session_state se não existir
+if "pagina_atual" not in st.session_state:
+    st.session_state.pagina_atual = "Disponibilidade e Utilização"
 if "dados_caminhoes" not in st.session_state:
     st.session_state.dados_caminhoes = []
 
@@ -414,11 +416,16 @@ def pagina_produtividade():
             "Pelo menos uma distância ou velocidade deve ser maior que zero. Verifique os dados de entrada."
         )
 # Mecanismo de navegação
-app = MultiPage()
+# Navegação
+st.sidebar.markdown("---")
+st.sidebar.markdown("<h3 style='text-align: center;'>Navegação</h3>", unsafe_allow_html=True)
+pagina = st.sidebar.radio(
+    "Selecione a página:", ("Disponibilidade e Utilização", "Produtividade Horária")
+)
 
-# Adiciona as páginas ao objeto MultiPage
-app.add_page("Disponibilidade e Utilização", lambda: None)  # Página principal
-app.add_page("Produtividade Horária", pagina_produtividade)
-
-# Executa o aplicativo MultiPage
-app.run()
+if pagina == "Disponibilidade e Utilização":
+    st.session_state.pagina_atual = "Disponibilidade e Utilização"
+    pagina_disponibilidade()
+elif pagina == "Produtividade Horária":
+    st.session_state.pagina_atual = "Produtividade Horária"
+    pagina_produtividade()
