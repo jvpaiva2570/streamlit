@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-from multipage import MultiPage  # Importe a classe MultiPage
+from streamlit_multipage import MultiPage
 from calculos import (
     calcular_tempo_parado,
     calcular_df,
