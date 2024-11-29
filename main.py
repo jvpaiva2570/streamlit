@@ -1,5 +1,4 @@
 import streamlit as st
-from multipage import MultiPage
 
 
 
@@ -414,20 +413,3 @@ def pagina_produtividade():
         st.error(
             "Pelo menos uma distância ou velocidade deve ser maior que zero. Verifique os dados de entrada."
         )
-# Mecanismo de navegação
-app = MultiPage()
-
-ef pagina_inicial():
-    import streamlit as st
-    st.title("Página Inicial")
-
-def pagina_outra():
-    import streamlit as st
-    st.title("Outra Página")
-
-app.add_page("Página Inicial", pagina_inicial)
-app.add_page("Outra Página", pagina_outra)
-
- Executa o app
-if __name__ == "__main__":
-    app.run()
