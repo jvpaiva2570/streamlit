@@ -193,16 +193,21 @@ def calcular_capacidade_liquida(capacidade_caminhao, fator_enchimento):
     """
     return capacidade_caminhao * (fator_enchimento / 100)
 
-# Função para calcular a produtividade horária
 def calcular_produtividade_horaria(capacidade_liquida, tempo_ciclo_total):
     """
     Calcula a produtividade horária da mina em toneladas por hora.
 
     Args:
-      capacidade_liquida: A capacidade líquida do caminhão em toneladas.
-      tempo_ciclo_total: O tempo total de ciclo em minutos.
+        capacidade_liquida: A capacidade líquida do caminhão em toneladas.
+        tempo_ciclo_total: O tempo total de ciclo em minutos.
 
     Returns:
-      A produtividade horária em toneladas por hora.
+        A produtividade horária em toneladas por hora.
     """
+    if tempo_ciclo_total <= 0:
+        st.error(
+            "O tempo total de ciclo deve ser maior que zero. Verifique os dados de entrada."
+        )
+        return 0  # Ou você pode retornar um valor padrão ou None
+
     return (capacidade_liquida * 60) / tempo_ciclo_total
