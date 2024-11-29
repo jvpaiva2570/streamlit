@@ -62,11 +62,11 @@ def calcular_utilizacao(dados_caminhao):
     tempo_total_parado = calcular_tempo_parado(dados_caminhao)
 
     # Tempo das novas paradas 
-    tempo_sem_operador = calcular_tempo_total(dados_caminhao["qtd_sem_operador"], 8)
-    tempo_parada_desmonte = calcular_tempo_total(dados_caminhao["qtd_parada_desmonte"], 8)
-    tempo_parada_climatica = calcular_tempo_total(dados_caminhao["qtd_parada_climatica"], 8)
+    tempo_sem_operador = calcular_tempo_total(dados_caminhao["qtd_sem_operador"], 1)
+    tempo_parada_desmonte = calcular_tempo_total(dados_caminhao["qtd_parada_desmonte"], 2)
+    tempo_parada_climatica = calcular_tempo_total(dados_caminhao["qtd_parada_climatica"], 1)
     tempo_almoco = calcular_tempo_total(dados_caminhao["qtd_almoco"], 1)  # 1 hora de almoço
-    tempo_troca_turno = calcular_tempo_total(dados_caminhao["qtd_troca_turno"], 0.5)  # 0.5 horas por troca de turno
+    tempo_troca_turno = calcular_tempo_total(dados_caminhao["qtd_troca_turno"], 0.08)  # 0.5 horas por troca de turno
 
     tempo_total_parado += (
         tempo_sem_operador
