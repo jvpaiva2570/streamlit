@@ -308,65 +308,110 @@ def pagina_produtividade():
     # Título da aba
     st.title("Cálculo da Produtividade Horária da Mina")
 
-    # ... código da nova aba ...
+    # Coleta os dados de entrada do usuário
+    st.header("Dados de Distância e Velocidade:")
+    distancia_horizontal = st.number_input("Distância Horizontal (metros):", min_value=0.0)
+    velocidade_horizontal_carregado = st.number_input(
+        "Velocidade Horizontal Carregado (km/h):", min_value=0.0
+    )
+    velocidade_horizontal_vazio = st.number_input(
+        "Velocidade Horizontal Vazio (km/h):", min_value=0.0
+    )
 
-# Adiciona a nova página à barra de navegação
-st.sidebar.markdown("---")
-st.sidebar.markdown("<h3 style='text-align: center;'>Navegação</h3>", unsafe_allow_html=True)
-paginas = {
-    "Disponibilidade e Utilização": lambda: None,  # Página principal (não faz nada)
-    "Produtividade Horária": pagina_produtividade,
-}
-pagina_selecionada = st.sidebar.radio("Selecione a página:", list(paginas.keys()))
-paginas[pagina_selecionada]()
+    distancia_subida = st.number_input("Distância Subida (metros):", min_value=0.0)
+    velocidade_subida_carregado = st.number_input(
+        "Velocidade Subida Carregado (km/h):", min_value=0.0
+    )
+    velocidade_subida_vazio = st.number_input(
+        "Velocidade Subida Vazio (km/h):", min_value=0.0
+    )
 
-# Coleta os dados de entrada do usuário
-st.header("Dados de Distância e Velocidade:")
-distancia_horizontal = st.number_input("Distância Horizontal (metros):", min_value=0.0)
-velocidade_horizontal_carregado = st.number_input("Velocidade Horizontal Carregado (km/h):", min_value=0.0)
-velocidade_horizontal_vazio = st.number_input("Velocidade Horizontal Vazio (km/h):", min_value=0.0)
+    distancia_descida = st.number_input("Distância Descida (metros):", min_value=0.0)
+    velocidade_descida_carregado = st.number_input(
+        "Velocidade Descida Carregado (km/h):", min_value=0.0
+    )
+    velocidade_descida_vazio = st.number_input(
+        "Velocidade Descida Vazio (km/h):", min_value=0.0
+    )
 
-distancia_subida = st.number_input("Distância Subida (metros):", min_value=0.0)
-velocidade_subida_carregado = st.number_input("Velocidade Subida Carregado (km/h):", min_value=0.0)
-velocidade_subida_vazio = st.number_input("Velocidade Subida Vazio (km/h):", min_value=0.0)
+    st.header("Dados do Caminhão:")
+    capacidade_caminhao = st.number_input(
+        "Capacidade do Caminhão (toneladas):", min_value=0.0
+    )
+    fator_enchimento = st.number_input(
+        "Fator de Enchimento (%):", min_value=0.0, max_value=100.0
+    )
 
-distancia_descida = st.number_input("Distância Descida (metros):", min_value=0.0)
-velocidade_descida_carregado = st.number_input("Velocidade Descida Carregado (km/h):", min_value=0.0)
-velocidade_descida_vazio = st.number_input("Velocidade Descida Vazio (km/h):", min_value=0.0)
+    # Verifica se pelo menos uma distância ou velocidade é maior que zero
+    if any(
+        [
+            distancia_horizontal,
+            velocidade_horizontal_carregado,
+            velocidade_horizontal_vazio,
+            distancia_subida,
+            velocidade_subida_carregado,
+            velocidade_subida_vazio,
+            distancia_descida,
+            velocidade_descida_carregado,
+            velocidade_descida_vazio,
+        ]
+    ):
+        # Calcula os tempos de ciclo
+        tempo_horizontal_carregado = calcular_tempo_ciclo(
+            distancia_horizontal, velocidade_horizontal_carregado
+        )
+        tempo_horizontal_vazio = calcular_tempo_ciclo(
+            distancia_horizontal, velocidade_horizontal_vazio
+        )
+        tempo_subida_carregado = calcular_tempo_ciclo(
+            distancia_subida, velocidade_subida_carregado
+        )
+        tempo_subida_vazio = calcular_tempo_ciclo(
+            distancia_subida, velocidade_subida_vazio
+        )
+        tempo_descida_carregado = calcular_tempo_ciclo(
+            distancia_descida, velocidade_descida_carregado
+        )
+        tempo_descida_vazio = calcular_tempo_ciclo(
+            distancia_descida, velocidade_descida_vazio
+        )
 
-st.header("Dados do Caminhão:")
-capacidade_caminhao = st.number_input("Capacidade do Caminhão (toneladas):", min_value=0.0)
-fator_enchimento = st.number_input("Fator de Enchimento (%):", min_value=0.0, max_value=100.0)
+        # Calcula o tempo total de ciclo
+        tempo_ciclo_total = calcular_tempo_ciclo_total(
+            tempo_horizontal_carregado + tempo_horizontal_vazio,
+            tempo_subida_carregado + tempo_subida_vazio,
+            tempo_descida_carregado + tempo_descida_vazio,
+        )
 
-# Calcula os tempos de ciclo
-tempo_horizontal_carregado = calcular_tempo_ciclo(distancia_horizontal, velocidade_horizontal_carregado)
-tempo_horizontal_vazio = calcular_tempo_ciclo(distancia_horizontal, velocidade_horizontal_vazio)
-tempo_subida_carregado = calcular_tempo_ciclo(distancia_subida, velocidade_subida_carregado)
-tempo_subida_vazio = calcular_tempo_ciclo(distancia_subida, velocidade_subida_vazio)
-tempo_descida_carregado = calcular_tempo_ciclo(distancia_descida, velocidade_descida_carregado)
-tempo_descida_vazio = calcular_tempo_ciclo(distancia_descida, velocidade_descida_vazio)
+        # Calcula a capacidade líquida do caminhão
+        capacidade_liquida = calcular_capacidade_liquida(
+            capacidade_caminhao, fator_enchimento
+        )
 
-# Calcula o tempo total de ciclo
-tempo_ciclo_total = calcular_tempo_ciclo_total(
-    tempo_horizontal_carregado + tempo_horizontal_vazio,
-    tempo_subida_carregado + tempo_subida_vazio,
-    tempo_descida_carregado + tempo_descida_vazio,
-)
+        # Calcula a produtividade horária
+        produtividade_horaria = calcular_produtividade_horaria(
+            capacidade_liquida, tempo_ciclo_total
+        )
 
-# Calcula a capacidade líquida do caminhão
-capacidade_liquida = calcular_capacidade_liquida(capacidade_caminhao, fator_enchimento)
+        # Exibe os resultados
+        st.header("Resultados:")
+        st.write(
+            f"Tempo de Ciclo Horizontal Carregado: {tempo_horizontal_carregado:.2f} minutos"
+        )
+        st.write(
+            f"Tempo de Ciclo Horizontal Vazio: {tempo_horizontal_vazio:.2f} minutos"
+        )
+        st.write(f"Tempo de Ciclo Subida Carregado: {tempo_subida_carregado:.2f} minutos")
+        st.write(f"Tempo de Ciclo Subida Vazio: {tempo_subida_vazio:.2f} minutos")
+        st.write(
+            f"Tempo de Ciclo Descida Carregado: {tempo_descida_carregado:.2f} minutos"
+        )
+        st.write(f"Tempo de Ciclo Descida Vazio: {tempo_descida_vazio:.2f} minutos")
+        st.write(f"Tempo Total de Ciclo: {tempo_ciclo_total:.2f} minutos")
+        st.write(f"Capacidade Líquida do Caminhão: {capacidade_liquida:.2f} toneladas")
+        st.write(f"Produtividade Horária da Mina: {produtividade_horaria:.2f} Ton/h")
 
-# Calcula a produtividade horária
-produtividade_horaria = calcular_produtividade_horaria(capacidade_liquida, tempo_ciclo_total)
-
-# Exibe os resultados
-st.header("Resultados:")
-st.write(f"Tempo de Ciclo Horizontal Carregado: {tempo_horizontal_carregado:.2f} minutos")
-st.write(f"Tempo de Ciclo Horizontal Vazio: {tempo_horizontal_vazio:.2f} minutos")
-st.write(f"Tempo de Ciclo Subida Carregado: {tempo_subida_carregado:.2f} minutos")
-st.write(f"Tempo de Ciclo Subida Vazio: {tempo_subida_vazio:.2f} minutos")
-st.write(f"Tempo de Ciclo Descida Carregado: {tempo_descida_carregado:.2f} minutos")
-st.write(f"Tempo de Ciclo Descida Vazio: {tempo_descida_vazio:.2f} minutos")
-st.write(f"Tempo Total de Ciclo: {tempo_ciclo_total:.2f} minutos")
-st.write(f"Capacidade Líquida do Caminhão: {capacidade_liquida:.2f} toneladas")
-st.write(f"Produtividade Horária da Mina: {produtividade_horaria:.2f} Ton/h")
+    else:
+        st.error(
+            "Pelo menos uma distância ou velocidade deve ser maior que zero. Verifique os dados de entrada."
+        )
