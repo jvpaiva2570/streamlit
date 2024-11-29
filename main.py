@@ -188,7 +188,7 @@ with st.sidebar:
 
                     # Calcula e exibe o tempo perdido em cada operação
                     tempo_perdido = calcular_tempo_perdido(
-                        dados_caminhao, horas_trabalhadas
+                        dados_caminhao
                     )  # Passe horas_trabalhadas como argumento
                     for operacao, tempo in tempo_perdido.items():
                         st.write(f"{operacao}: {tempo:.2f} horas")
