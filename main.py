@@ -271,7 +271,7 @@ with col2:
               # Exibe a disponibilidade da frota em uma caixa
         st.markdown(
             f"""
-            <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
+            <div style="background-color: #f0f0f5; padding: 4px; border-radius: 2px;">
                 <h3 style="text-align: center;">Disponibilidade da Frota</h3>
                 <h2 style="text-align: center;">{total_df:.2f}%</h2>
             </div>
