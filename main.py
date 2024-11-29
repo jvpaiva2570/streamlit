@@ -11,7 +11,7 @@ from graficos import gerar_grafico, gerar_grafico_df_utilizacao
 
 # Configuração da página
 st.set_page_config(
-    page_title="Dimensionamento da Frota de Caminhões",
+    page_title="Dimensionamento de uma mina de ferro",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
