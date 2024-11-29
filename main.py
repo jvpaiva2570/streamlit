@@ -22,18 +22,93 @@ st.set_page_config(
 if "dados_caminhoes" not in st.session_state:
     st.session_state.dados_caminhoes = []
 
-# Título principal
+# Cabeçalho
 st.markdown(
     "<h1 style='text-align: center;'>Dimensionamento da Frota de Caminhões</h1>",
     unsafe_allow_html=True,
 )
 
-# Divide a tela em duas colunas com larguras ajustadas
-col1, col2 = st.columns([1, 2])  # Ajuste a proporção conforme necessário
+# Conteúdo principal
+col1, col2 = st.columns([2, 1])  # Divide o conteúdo principal em duas colunas
 
-# Barra lateral com os parâmetros de entrada
+# Subseção Gráficos
 with col1:
-    st.sidebar.subheader("Parâmetros de Entrada")
+    st.subheader("Gráficos")
+
+    # Calcula a DF após a atualização da lista de caminhões
+    dfs_caminhoes = []
+    utilizacoes = []  # Lista para armazenar as utilizações
+    for caminhao in caminhoes:  # Itera sobre a lista atualizada de caminhões
+        for dados in st.session_state.dados_caminhoes:
+            if (
+                dados["caminhao"] == caminhao
+            ):  # Encontra os dados do caminhão
+                try:
+                    tempo_total_parado = calcular_tempo_parado(dados)
+                    df = calcular_df(tempo_total_parado)
+                    dfs_caminhoes.append(df)
+
+                    # Calcula a utilização e adiciona à lista
+                    (
+                        utilizacao,
+                        _,
+                        _,
+                        _,
+                    ) = calcular_utilizacao(dados_caminhao)
+                    utilizacoes.append(utilizacao)
+
+                except ValueError:
+                    st.error(
+                        f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
+                    )
+                    # Interrompe o loop em caso de erro
+                    break
+                break  # Sai do loop interno após encontrar os dados do caminhão
+
+    # Gráfico com fundo ajustado dinamicamente, tamanho menor e rotação dos rótulos
+    if dfs_caminhoes:
+        gerar_grafico(caminhoes, dfs_caminhoes)
+
+        # Gera o gráfico de DF x Utilização
+        gerar_grafico_df_utilizacao(caminhoes, dfs_caminhoes, utilizacoes)
+
+# Subseção Resumo
+with col2:
+    st.subheader("Resumo")
+
+    # Calcula a DF após a atualização da lista de caminhões
+    dfs_caminhoes = []
+    for caminhao in caminhoes:  # Itera sobre a lista atualizada de caminhões
+        for dados in st.session_state.dados_caminhoes:
+            if (
+                dados["caminhao"] == caminhao
+            ):  # Encontra os dados do caminhão
+                try:
+                    tempo_total_parado = calcular_tempo_parado(dados)
+                    df = calcular_df(tempo_total_parado)
+                    dfs_caminhoes.append(df)
+                except ValueError:
+                    st.error(
+                        f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
+                    )
+                    # Interrompe o loop em caso de erro
+                    break
+                break  # Sai do loop interno após encontrar os dados do caminhão
+
+    # Resumo da disponibilidade centralizado e em destaque
+    st.markdown("<br>", unsafe_allow_html=True)
+    if dfs_caminhoes:
+        total_df = sum(dfs_caminhoes) / len(dfs_caminhoes)
+        st.markdown(
+            f"<h2 style='text-align: center;'>Disponibilidade da Frota: {total_df:.2f}%</h2>",
+            unsafe_allow_html=True,
+        )
+    else:
+        st.write("**Nenhum dado de caminhão disponível.**")
+
+# Barra lateral
+with st.sidebar:
+    st.subheader("Parâmetros de Entrada")
     num_caminhoes = st.sidebar.slider(
         "Quantos caminhões sua frota possui?", 1, 20, 8, 1
     )
@@ -188,62 +263,10 @@ with col1:
 
                     # Calcula e exibe o tempo perdido em cada operação
                     tempo_perdido = calcular_tempo_perdido(
-                        dados_caminhao
+                        dados_caminhao, horas_trabalhadas
                     )  # Passe horas_trabalhadas como argumento
                     for operacao, tempo in tempo_perdido.items():
                         st.write(f"{operacao}: {tempo:.2f} horas")
 
                 # Atualiza os dados na session_state
                 st.session_state.dados_caminhoes[i] = dados_caminhao
-
-# Conteúdo principal com o gráfico e o resumo da disponibilidade
-with col2:
-    st.subheader("Disponibilidade da Frota")
-
-    # Calcula a DF após a atualização da lista de caminhões
-    dfs_caminhoes = []
-    utilizacoes = []  # Lista para armazenar as utilizações
-    for caminhao in caminhoes:  # Itera sobre a lista atualizada de caminhões
-        for dados in st.session_state.dados_caminhoes:
-            if (
-                dados["caminhao"] == caminhao
-            ):  # Encontra os dados do caminhão
-                try:
-                    tempo_total_parado = calcular_tempo_parado(dados)
-                    df = calcular_df(tempo_total_parado)
-                    dfs_caminhoes.append(df)
-
-                    # Calcula a utilização e adiciona à lista
-                    (
-                        utilizacao,
-                        _,
-                        _,
-                        _,
-                    ) = calcular_utilizacao(dados_caminhao)
-                    utilizacoes.append(utilizacao)
-
-                except ValueError:
-                    st.error(
-                        f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
-                    )
-                    # Interrompe o loop em caso de erro
-                    break
-                break  # Sai do loop interno após encontrar os dados do caminhão
-
-    # Gráfico com fundo ajustado dinamicamente, tamanho menor e rotação dos rótulos
-    if dfs_caminhoes:
-        gerar_grafico(caminhoes, dfs_caminhoes)
-
-        # Gera o gráfico de DF x Utilização
-        gerar_grafico_df_utilizacao(caminhoes, dfs_caminhoes, utilizacoes)
-
-    # Resumo da disponibilidade centralizado e em destaque
-    st.markdown("<br>", unsafe_allow_html=True)
-    if dfs_caminhoes:
-        total_df = sum(dfs_caminhoes) / len(dfs_caminhoes)
-        st.markdown(
-            f"<h2 style='text-align: center;'>Disponibilidade da Frota: {total_df:.2f}%</h2>",
-            unsafe_allow_html=True,
-        )
-    else:
-        st.write("**Nenhum dado de caminhão disponível.**")
