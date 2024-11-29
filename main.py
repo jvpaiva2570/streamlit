@@ -277,6 +277,6 @@ with col2:
 
     # Exibe a utilização da frota em outra caixa
     st.metric("Utilização da Frota", f"{total_utilizacao:.2f}%")
-        )
+  
     else:
         st.write("**Nenhum dado de caminhão disponível.**")
