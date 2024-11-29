@@ -5,14 +5,13 @@ from calculos import (
     calcular_df,
     calcular_utilizacao,
     calcular_tempo_perdido,
-)
-from graficos import gerar_grafico, gerar_grafico_df_utilizacao
-from calculos_produtividade import (
     calcular_tempo_ciclo,
     calcular_tempo_ciclo_total,
     calcular_capacidade_liquida,
     calcular_produtividade_horaria,
 )
+from graficos import gerar_grafico, gerar_grafico_df_utilizacao
+
 
 # Configuração da página principal
 st.set_page_config(
