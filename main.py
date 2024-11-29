@@ -11,7 +11,7 @@ from graficos import gerar_grafico, gerar_grafico_df_utilizacao
 
 # Configuração da página
 st.set_page_config(
-    page_title="Dimensionamento de uma mina de ferro",
+    page_title="mina minério de ferro",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
@@ -24,7 +24,7 @@ if "dados_caminhoes" not in st.session_state:
 
 # Título principal
 st.markdown(
-    "<h1 style='text-align: center;'>Dimensionamento da Frota de Caminhões</h1>",
+    "<h1 style='text-align: center;'>Dimensionamento de uma mina de minério de ferro</h1>",
     unsafe_allow_html=True,
 )
 
