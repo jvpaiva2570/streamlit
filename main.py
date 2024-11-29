@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-from streamlit_multipage import MultiPage
+
 from calculos import (
     calcular_tempo_parado,
     calcular_df,
@@ -413,12 +413,4 @@ def pagina_produtividade():
         st.error(
             "Pelo menos uma distância ou velocidade deve ser maior que zero. Verifique os dados de entrada."
         )
-# Mecanismo de navegação
-app = MultiPage()
 
-# Adiciona as páginas ao objeto MultiPage
-app.add_page("Disponibilidade e Utilização", lambda: None)  # Página principal
-app.add_page("Produtividade Horária", pagina_produtividade)
-
-# Executa o aplicativo MultiPage
-app.run()
