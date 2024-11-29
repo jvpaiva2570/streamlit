@@ -1,5 +1,7 @@
 import streamlit as st
 
+
+from multipage import MultiPage  # Importe a classe MultiPage
 from calculos import (
     calcular_tempo_parado,
     calcular_df,
@@ -412,11 +414,11 @@ def pagina_produtividade():
             "Pelo menos uma distância ou velocidade deve ser maior que zero. Verifique os dados de entrada."
         )
 # Mecanismo de navegação
-st.sidebar.markdown("---")
-st.sidebar.markdown("<h3 style='text-align: center;'>Navegação</h3>", unsafe_allow_html=True)
-paginas = {
-    "Disponibilidade e Utilização": lambda: None,  # Página principal (não faz nada)
-    "Produtividade Horária": pagina_produtividade,
-}
-pagina_selecionada = st.sidebar.radio("Selecione a página:", list(paginas.keys()))
-paginas[pagina_selecionada]()
+app = MultiPage()
+
+# Adiciona as páginas ao objeto MultiPage
+app.add_page("Disponibilidade e Utilização", lambda: None)  # Página principal
+app.add_page("Produtividade Horária", pagina_produtividade)
+
+# Executa o aplicativo MultiPage
+app.run()
