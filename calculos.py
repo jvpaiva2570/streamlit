@@ -141,3 +141,64 @@ def calcular_tempo_perdido(dados_caminhao):  # Adicione horas_trabalhadas como a
     tempo_perdido["Treinamento"] = ((dados_caminhao["perc_treinamento"] / 100) * horas_dia)*dias_programados
 
     return tempo_perdido
+
+import streamlit as st
+
+# Função para calcular o tempo de ciclo para cada seção
+def calcular_tempo_ciclo(distancia, velocidade):
+    """
+    Calcula o tempo de ciclo (em minutos) para uma determinada seção.
+
+    Args:
+      distancia: A distância da seção em metros.
+      velocidade: A velocidade do caminhão na seção em km/h.
+
+    Returns:
+      O tempo de ciclo em minutos.
+    """
+    tempo_horas = distancia / (velocidade * 1000)  # Tempo em horas
+    tempo_minutos = tempo_horas * 60  # Tempo em minutos
+    return tempo_minutos
+
+# Função para calcular o tempo total de ciclo
+def calcular_tempo_ciclo_total(tempo_horizontal, tempo_subida, tempo_descida):
+    """
+    Calcula o tempo total de ciclo (em minutos).
+
+    Args:
+      tempo_horizontal: Tempo de ciclo na seção horizontal em minutos.
+      tempo_subida: Tempo de ciclo na seção de subida em minutos.
+      tempo_descida: Tempo de ciclo na seção de descida em minutos.
+
+    Returns:
+      O tempo total de ciclo em minutos.
+    """
+    return tempo_horizontal + tempo_subida + tempo_descida
+
+# Função para calcular a capacidade líquida do caminhão
+def calcular_capacidade_liquida(capacidade_caminhao, fator_enchimento):
+    """
+    Calcula a capacidade líquida do caminhão.
+
+    Args:
+      capacidade_caminhao: A capacidade do caminhão em toneladas.
+      fator_enchimento: O fator de enchimento em porcentagem.
+
+    Returns:
+      A capacidade líquida do caminhão em toneladas.
+    """
+    return capacidade_caminhao * (fator_enchimento / 100)
+
+# Função para calcular a produtividade horária
+def calcular_produtividade_horaria(capacidade_liquida, tempo_ciclo_total):
+    """
+    Calcula a produtividade horária da mina em toneladas por hora.
+
+    Args:
+      capacidade_liquida: A capacidade líquida do caminhão em toneladas.
+      tempo_ciclo_total: O tempo total de ciclo em minutos.
+
+    Returns:
+      A produtividade horária em toneladas por hora.
+    """
+    return (capacidade_liquida * 60) / tempo_ciclo_total
