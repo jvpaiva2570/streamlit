@@ -2,7 +2,6 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 def gerar_grafico(caminhoes, dfs_caminhoes):
     """Gera um gráfico de barras com a DF de cada caminhão."""
     fig, ax = plt.subplots(
@@ -17,6 +16,6 @@ def gerar_grafico(caminhoes, dfs_caminhoes):
         color="white",
     )
     ax.set_ylim(0, 100)
-    ax.tick_params(axis="x", colors="Black", rotation=45, labelsize=5)
-    ax.tick_params(axis="y", colors="Black", labelsize=5)
+    ax.tick_params(axis="x", colors="black", rotation=45, labelsize=5)
+    ax.tick_params(axis="y", colors="black", labelsize=5)
     st.pyplot(fig)
