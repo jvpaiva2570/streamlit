@@ -278,8 +278,9 @@ with col2:
             """,
             unsafe_allow_html=True,
         )
-
-    # Exibe a utilização da frota em outra caixa com área sombreada
+        # Adiciona um espaçamento entre as caixas
+        st.markdown("<br>", unsafe_allow_html=True)
+        # Exibe a utilização da frota em outra caixa com área sombreada
         st.markdown(
             f"""
             <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
