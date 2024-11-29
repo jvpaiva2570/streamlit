@@ -156,6 +156,10 @@ def calcular_tempo_ciclo(distancia, velocidade):
     Returns:
       O tempo de ciclo em minutos.
     """
+    if velocidade <= 0:
+        st.error("A velocidade deve ser maior que zero. Verifique os dados de entrada.")
+        return 0  # Ou você pode retornar um valor padrão ou None
+
     tempo_horas = distancia / (velocidade * 1000)  # Tempo em horas
     tempo_minutos = tempo_horas * 60  # Tempo em minutos
     return tempo_minutos
