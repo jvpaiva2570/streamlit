@@ -280,6 +280,14 @@ with col2:
         )
 
         # Exibe a utilização da frota em outra caixa
-        st.metric("Utilização da Frota", f"{total_utilizacao:.2f}%")
+        st.markdown(
+            f"""
+            <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
+                <h3 style="text-align: center;">Utilização da Frota</h3>
+                <h2 style="text-align: center;">{total_utilizacao:.2f}%</h2>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
     else:
         st.write("**Nenhum dado de caminhão disponível.**")
