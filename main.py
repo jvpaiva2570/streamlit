@@ -5,6 +5,7 @@ from calculos import (
     calcular_df,
     calcular_utilizacao,
     calcular_tempo_perdido,
+    calcular_tempo_total,  # Importe a função calcular_tempo_total
 )
 from graficos import gerar_grafico
 
@@ -62,7 +63,6 @@ with col1:
                 "qtd_troca_turno": 0,
                 "perc_absenteismo": 0.0,
                 "perc_treinamento": 0.0,
-                "qtd_hnu": 0,  # adicionando a quantidade de horas não utilizadas
             }
             st.session_state.dados_caminhoes.append(dados_caminhao)
 
@@ -158,22 +158,22 @@ with col1:
                     format="%.1f",
                 )
 
-                dados_caminhao["qtd_hnu"] = st.number_input(
-                    f"Qtd HNU ({caminhao})",
-                    min_value=0,
-                    value=dados_caminhao.get("qtd_hnu", 0),
-                    step=1,
-                )
-
                 # Calcula e exibe a utilização, horas não utilizadas e horas trabalhadas
                 (
                     utilizacao,
                     horas_nao_utilizadas,
                     horas_trabalhadas,
+                    horas_disponiveis,
+                    
                 ) = calcular_utilizacao(dados_caminhao)
+                tempo_total_parado = calcular_tempo_parado(dados_caminhao)
+                df = calcular_df(tempo_total_parado)  # Calcula a DF aqui
                 st.write(f"Utilização: {utilizacao:.2f}%")
                 st.write(f"Horas não utilizadas: {horas_nao_utilizadas:.2f}")
                 st.write(f"Horas trabalhadas: {horas_trabalhadas:.2f}")
+                st.write(f"Horas disponíveis: {horas_disponiveis:.2f}")
+                st.write(f"DF: {df:.2f}%")  # Exibe a DF aqui
+                
 
                 # Calcula e exibe o tempo perdido em cada operação
                 tempo_perdido = calcular_tempo_perdido(dados_caminhao)
