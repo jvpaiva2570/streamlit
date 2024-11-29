@@ -267,9 +267,8 @@ with col2:
     st.markdown("<br>", unsafe_allow_html=True)
     if dfs_caminhoes:
         total_df = sum(dfs_caminhoes) / len(dfs_caminhoes)
-        st.markdown(
-            f"<h2 style='text-align: center;'>Disponibilidade da Frota: {total_df:.2f}%</h2>",
-            unsafe_allow_html=True,
-        )
+        total_utilizacao= sum(utilizacoes)/len(utilizacoes)
+        st.metric("Disponibilidade da frota", "f{total_df:.2f}%")
+        st.metric("Utilização da frota", "f{total_utilizacacao:.2f}%")
     else:
         st.write("**Nenhum dado de caminhão disponível.**")
