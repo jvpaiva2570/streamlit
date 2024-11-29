@@ -1,7 +1,8 @@
 import streamlit as st
+from multipage import MultiPage
 
 
-from streamlit_multipage import MultiPage
+
 from calculos import (
     calcular_tempo_parado,
     calcular_df,
@@ -416,9 +417,17 @@ def pagina_produtividade():
 # Mecanismo de navegação
 app = MultiPage()
 
-# Adiciona as páginas ao objeto MultiPage
-app.add_page("Disponibilidade e Utilização", lambda: None)  # Página principal
-app.add_page("Produtividade Horária", pagina_produtividade)
+ef pagina_inicial():
+    import streamlit as st
+    st.title("Página Inicial")
 
-# Executa o aplicativo MultiPage
-app.run()
+def pagina_outra():
+    import streamlit as st
+    st.title("Outra Página")
+
+app.add_page("Página Inicial", pagina_inicial)
+app.add_page("Outra Página", pagina_outra)
+
+ Executa o app
+if __name__ == "__main__":
+    app.run()
