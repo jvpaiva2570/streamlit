@@ -1,7 +1,7 @@
-# main.py
-
-# Importação de Bibliotecas
 import streamlit as st
+
+
+from streamlit_multipage import MultiPage
 from calculos import (
     calcular_tempo_parado,
     calcular_df,
@@ -15,224 +15,266 @@ from calculos import (
 )
 from graficos import gerar_grafico, gerar_grafico_df_utilizacao
 
-# Configuração da Página do Streamlit
+# Configuração da página
 st.set_page_config(
-    page_title="Mina de Minério de Ferro",
+    page_title="mina minério de ferro",
     layout="wide",
     initial_sidebar_state="collapsed",
 )
 
-# --- Função para Calcular Métricas ---
-def calcular_metricas(caminhoes, dados_caminhoes):
-    """
-    Calcula DF e Utilização para cada caminhão.
+# Tema escuro (configurado no arquivo config.toml)
 
-    Retorna:
-        dfs_caminhoes (list): Lista de DF para cada caminhão.
-        utilizacoes (list): Lista de Utilização para cada caminhão.
-    """
-    dfs_caminhoes = []
-    utilizacoes = []
-    for caminhao in caminhões:
-        for dados in dados_caminhoes:
-            if dados["caminhao"] == caminhao:
-                try:
-                    tempo_total_parado = calcular_tempo_parado(dados)
-                    df = calcular_df(tempo_total_parado)
-                    dfs_caminhoes.append(df)
-
-                    utilizacao, _, _, _ = calcular_utilizacao(dados)
-                    utilizacoes.append(utilizacao)
-                except ValueError:
-                    st.error(
-                        f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
-                    )
-                break  # Sai do loop interno após encontrar os dados do caminhão
-    return dfs_caminhoes, utilizacoes
-
-# --- Inicialização de Dados ---
-def inicializar_dados(num_caminhoes):
-    """Inicializa os dados dos caminhões na session_state."""
-    dados_caminhoes = []
-    for i in range(num_caminhoes):
-        caminhao = f"CM-{i + 1:03}"
-        dados_caminhoes.append({
-            "caminhao": caminhao,
-            "qtd_250h": 35,
-            "qtd_500h": 18,
-            "qtd_1000h": 9,
-            "qtd_16000h": 0,
-            "taxa_corretiva": 0.25,
-            "qtd_sem_operador": 0,
-            "qtd_parada_desmonte": 0,
-            "qtd_parada_climatica": 0,
-            "qtd_almoco": 0,
-            "qtd_troca_turno": 0,
-            "perc_absenteismo": 0.0,
-            "perc_treinamento": 0.0,
-        })
-    return dados_caminhoes
-
-# --- Carregar Session State ---
+# Inicializa dados_caminhoes na session_state se não existir
 if "dados_caminhoes" not in st.session_state:
-    # Inicializa com 8 caminhões por padrão
-    st.session_state.dados_caminhoes = inicializar_dados(num_caminhoes=8)
+    st.session_state.dados_caminhoes = []
 
-# --- Título Principal ---
+# Título principal
 st.markdown(
-    "<h1 style='text-align: center;'>Dimensionamento de uma Mina de Minério de Ferro</h1>",
+    "<h1 style='text-align: center;'>Dimensionamento de uma mina de minério de ferro</h1>",
     unsafe_allow_html=True,
 )
 
-# --- Barra Lateral com Parâmetros de Entrada ---
+# Divide a tela em duas colunas com larguras ajustadas
+col1, col2 = st.columns([2, 1])  # Ajuste a proporção conforme necessário
+
+# Barra lateral com os parâmetros de entrada
 with st.sidebar:
     st.subheader("Parâmetros de Entrada")
-    num_caminhoes = st.slider(
+    num_caminhoes = st.sidebar.slider(
         "Quantos caminhões sua frota possui?", 1, 20, 8, 1
     )
     caminhoes = [f"CM-{i+1:03}" for i in range(num_caminhoes)]
 
-    # Ajusta a lista de caminhões no session_state caso o número tenha mudado
-    if len(st.session_state.dados_caminhoes) != num_caminhoes:
-        if len(st.session_state.dados_caminhoes) < num_caminhoes:
-            # Adiciona novos caminhões
-            novos = inicializar_dados(num_caminhoes - len(st.session_state.dados_caminhoes))
-            st.session_state.dados_caminhoes.extend(novos)
-        else:
-            # Remove caminhões excedentes
-            st.session_state.dados_caminhoes = st.session_state.dados_caminhoes[:num_caminhoes]
-
     # Lista suspensa para selecionar o caminhão
-    selected_caminhao = st.selectbox("Selecione o caminhão para configurar:", caminhoes)
+    selected_caminhao = st.sidebar.selectbox("Selecione o caminhão:", caminhoes)
 
-    # Encontrar o índice do caminhão selecionado
-    index_caminhao = caminhoes.index(selected_caminhao)
+    # Loop para coletar as informações de cada caminhão
+    for i, caminhao in enumerate(caminhoes):
+        # Verifica se já existem dados para este caminhão na session_state
+        if i < len(st.session_state.dados_caminhoes):
+            dados_caminhao = st.session_state.dados_caminhoes[i]
+        else:
+            # Cria um novo dicionário com valores padrão se não houver dados
+            dados_caminhao = {
+                "caminhao": caminhao,
+                "qtd_250h": 35,
+                "qtd_500h": 18,
+                "qtd_1000h": 9,
+                "qtd_16000h": 0,
+                "taxa_corretiva": 0.25,
+                "qtd_sem_operador": 0,
+                "qtd_parada_desmonte": 0,
+                "qtd_parada_climatica": 0,
+                "qtd_almoco": 0,
+                "qtd_troca_turno": 0,
+                "perc_absenteismo": 0.0,
+                "perc_treinamento": 0.0,
+            }
+            st.session_state.dados_caminhoes.append(dados_caminhao)
 
-    # Obter os dados do caminhão selecionado
-    dados_caminhao = st.session_state.dados_caminhoes[index_caminhao]
+        # Exibe as configurações para o caminhão selecionado
+        if caminhao == selected_caminhao:
+            with st.expander(
+                f"Configurações do caminhão {caminhao}", expanded=True
+            ):
 
-    # Exibe as configurações para o caminhão selecionado
-    with st.expander(f"Configurações do caminhão {selected_caminhao}", expanded=True):
+                # Campos para o usuário inserir a quantidade de cada tipo de serviço e parada
+                dados_caminhao["qtd_250h"] = st.number_input(
+                    f"Qtd Preventiva 250h ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao["qtd_250h"],
+                    step=1,
+                )
+                dados_caminhao["qtd_500h"] = st.number_input(
+                    f"Qtd Preventiva 500h ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao["qtd_500h"],
+                    step=1,
+                )
+                dados_caminhao["qtd_1000h"] = st.number_input(
+                    f"Qtd Preventiva 1000h ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao["qtd_1000h"],
+                    step=1,
+                )
+                dados_caminhao["qtd_16000h"] = st.number_input(
+                    f"Qtd Preventiva 16000h ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao["qtd_16000h"],
+                    step=1,
+                )
 
-        # Campos para o usuário inserir a quantidade de cada tipo de serviço e parada
-        dados_caminhao["qtd_250h"] = st.number_input(
-            f"Qtd Preventiva 250h ({selected_caminhao})",
-            min_value=0,
-            value=dados_caminhao["qtd_250h"],
-            step=1,
-        )
-        dados_caminhao["qtd_500h"] = st.number_input(
-            f"Qtd Preventiva 500h ({selected_caminhao})",
-            min_value=0,
-            value=dados_caminhao["qtd_500h"],
-            step=1,
-        )
-        dados_caminhao["qtd_1000h"] = st.number_input(
-            f"Qtd Preventiva 1000h ({selected_caminhao})",
-            min_value=0,
-            value=dados_caminhao["qtd_1000h"],
-            step=1,
-        )
-        dados_caminhao["qtd_16000h"] = st.number_input(
-            f"Qtd Preventiva 16000h ({selected_caminhao})",
-            min_value=0,
-            value=dados_caminhao["qtd_16000h"],
-            step=1,
-        )
+                dados_caminhao["taxa_corretiva"] = (
+                    st.number_input(
+                        f"Taxa Corretiva (%) ({caminhao})",
+                        min_value=0,
+                        max_value=100,
+                        value=int(dados_caminhao["taxa_corretiva"] * 100),
+                    )
+                    / 100
+                )
 
-        dados_caminhao["taxa_corretiva"] = (
-            st.number_input(
-                f"Taxa Corretiva (%) ({selected_caminhao})",
-                min_value=0,
-                max_value=100,
-                value=int(dados_caminhao["taxa_corretiva"] * 100),
-            )
-            / 100
-        )
+                # ... (outros campos de parada) ...
+                dados_caminhao["qtd_sem_operador"] = st.number_input(
+                    f"Qtd Sem Operador ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao.get("qtd_sem_operador", 0),
+                    step=1,
+                )
+                dados_caminhao["qtd_parada_desmonte"] = st.number_input(
+                    f"Qtd Parada Desmonte ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao.get("qtd_parada_desmonte", 0),
+                    step=1,
+                )
+                dados_caminhao["qtd_parada_climatica"] = st.number_input(
+                    f"Qtd Parada Climática ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao.get("qtd_parada_climatica", 0),
+                    step=1,
+                )
+                dados_caminhao["qtd_almoco"] = st.number_input(
+                    f"Qtd Almoço ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao.get("qtd_almoco", 0),
+                    step=1,
+                )
+                dados_caminhao["qtd_troca_turno"] = st.number_input(
+                    f"Qtd Troca de Turno ({caminhao})",
+                    min_value=0,
+                    value=dados_caminhao.get("qtd_troca_turno", 0),
+                    step=1,
+                )
 
-        # Outros campos de parada
-        dados_caminhao["qtd_sem_operador"] = st.number_input(
-            f"Qtd Sem Operador ({selected_caminhao})",
-            min_value=0,
-            value=dados_caminhao.get("qtd_sem_operador", 0),
-            step=1,
-        )
-        dados_caminhao["qtd_parada_desmonte"] = st.number_input(
-            f"Qtd Parada Desmonte ({selected_caminhao})",
-            min_value=0,
-            value=dados_caminhao.get("qtd_parada_desmonte", 0),
-            step=1,
-        )
-        dados_caminhao["qtd_parada_climatica"] = st.number_input(
-            f"Qtd Parada Climática ({selected_caminhao})",
-            min_value=0,
-            value=dados_caminhao.get("qtd_parada_climatica", 0),
-            step=1,
-        )
-        dados_caminhao["qtd_almoco"] = st.number_input(
-            f"Qtd Almoço ({selected_caminhao})",
-            min_value=0,
-            value=dados_caminhao.get("qtd_almoco", 0),
-            step=1,
-        )
-        dados_caminhao["qtd_troca_turno"] = st.number_input(
-            f"Qtd Troca de Turno ({selected_caminhao})",
-            min_value=0,
-            value=dados_caminhao.get("qtd_troca_turno", 0),
-            step=1,
-        )
+                # Campos para o usuário inserir o percentual de absenteísmo e treinamento
+                dados_caminhao["perc_absenteismo"] = st.number_input(
+                    f"Percentual Absenteísmo (%) ({caminhao})",
+                    min_value=0.0,
+                    max_value=100.0,
+                    value=dados_caminhao.get("perc_absenteismo", 0.0),
+                    step=0.1,
+                    format="%.1f",
+                )
+                dados_caminhao["perc_treinamento"] = st.number_input(
+                    f"Percentual Treinamento (%) ({caminhao})",
+                    min_value=0.0,
+                    max_value=100.0,
+                    value=dados_caminhao.get("perc_treinamento", 0.0),
+                    step=0.1,
+                    format="%.1f",
+                )
 
-        # Campos para o usuário inserir o percentual de absenteísmo e treinamento
-        dados_caminhao["perc_absenteismo"] = st.number_input(
-            f"Percentual Absenteísmo (%) ({selected_caminhao})",
-            min_value=0.0,
-            max_value=100.0,
-            value=dados_caminhao.get("perc_absenteismo", 0.0),
-            step=0.1,
-            format="%.1f",
-        )
-        dados_caminhao["perc_treinamento"] = st.number_input(
-            f"Percentual Treinamento (%) ({selected_caminhao})",
-            min_value=0.0,
-            max_value=100.0,
-            value=dados_caminhao.get("perc_treinamento", 0.0),
-            step=0.1,
-            format="%.1f",
-        )
+                # Calcula e exibe a utilização, horas não utilizadas e horas trabalhadas
+                (
+                    utilizacao,
+                    horas_nao_utilizadas,
+                    horas_trabalhadas,
+                    horas_disponiveis,
+                ) = calcular_utilizacao(dados_caminhao)
 
-        # Atualiza os dados na session_state
-        st.session_state.dados_caminhoes[index_caminhao] = dados_caminhao
+                # Calcula a DF
+                tempo_total_parado = calcular_tempo_parado(dados_caminhao)
+                df = calcular_df(tempo_total_parado)  # Calcula a DF aqui
 
-# --- Conteúdo Principal ---
+                # Divide a área em duas colunas
+                col_utilizacao, col_tempos = st.columns(2)
+
+                # Primeira coluna: Utilização, Horas Não Utilizadas, Horas Trabalhadas
+                with col_utilizacao:
+                    st.container()
+                    st.write(f"Utilização: {utilizacao:.2f}%")
+                    st.write(f"Horas não utilizadas: {horas_nao_utilizadas:.2f}")
+                    st.write(f"Horas trabalhadas: {horas_trabalhadas:.2f}")
+
+                # Segunda coluna: Horas Disponíveis, DF, Tempo Perdido
+                with col_tempos:
+                    st.container()
+                    st.write(f"Horas disponíveis: {horas_disponiveis:.2f}")
+                    st.write(f"DF: {df:.2f}%")
+
+                    # Calcula e exibe o tempo perdido em cada operação
+                    tempo_perdido = calcular_tempo_perdido(
+                        dados_caminhao
+                    )  # Passe horas_trabalhadas como argumento
+                    for operacao, tempo in tempo_perdido.items():
+                        st.write(f"{operacao}: {tempo:.2f} horas")
+
+                # Atualiza os dados na session_state
+                st.session_state.dados_caminhoes[i] = dados_caminhao
+
+# Conteúdo principal
 col1, col2 = st.columns([2, 1])  # Divide o conteúdo principal em duas colunas
-
-# Calcular DF e Utilização
-dfs_caminhoes, utilizacoes = calcular_metricas(caminhoes, st.session_state.dados_caminhoes)
 
 # Subseção Gráficos
 with col1:
     st.subheader("Gráficos")
 
-    # Gráfico de DF por Caminhão
+    # Calcula a DF após a atualização da lista de caminhões
+    dfs_caminhoes = []
+    utilizacoes = []  # Lista para armazenar as utilizações
+    for caminhao in caminhoes:  # Itera sobre a lista atualizada de caminhões
+        for dados in st.session_state.dados_caminhoes:
+            if (
+                dados["caminhao"] == caminhao
+            ):  # Encontra os dados do caminhão
+                try:
+                    tempo_total_parado = calcular_tempo_parado(dados)
+                    df = calcular_df(tempo_total_parado)
+                    dfs_caminhoes.append(df)
+
+                    # Calcula a utilização e adiciona à lista
+                    (
+                        utilizacao,
+                        _,
+                        _,
+                        _,
+                    ) = calcular_utilizacao(dados_caminhao)
+                    utilizacoes.append(utilizacao)
+
+                except ValueError:
+                    st.error(
+                        f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
+                    )
+                    # Interrompe o loop em caso de erro
+                    break
+                break  # Sai do loop interno após encontrar os dados do caminhão
+
+    # Gráfico com fundo ajustado dinamicamente, tamanho menor e rotação dos rótulos
     if dfs_caminhoes:
         gerar_grafico(caminhoes, dfs_caminhoes)
 
-        # Gráfico de DF x Utilização
+        # Gera o gráfico de DF x Utilização
         gerar_grafico_df_utilizacao(caminhoes, dfs_caminhoes, utilizacoes)
-    else:
-        st.write("**Nenhum dado disponível para gerar gráficos.**")
 
 # Subseção Resumo
 with col2:
     st.subheader("Resumo")
 
-    # Resumo da disponibilidade e utilização
+    # Calcula a DF após a atualização da lista de caminhões
+    dfs_caminhoes = []
+    for caminhao in caminhoes:  # Itera sobre a lista atualizada de caminhões
+        for dados in st.session_state.dados_caminhoes:
+            if (
+                dados["caminhao"] == caminhao
+            ):  # Encontra os dados do caminhão
+                try:
+                    tempo_total_parado = calcular_tempo_parado(dados)
+                    df = calcular_df(tempo_total_parado)
+                    dfs_caminhoes.append(df)
+                except ValueError:
+                    st.error(
+                        f"Entrada inválida para o caminhão {dados['caminhao']}. Por favor, verifique os dados."
+                    )
+                    # Interrompe o loop em caso de erro
+                    break
+                break  # Sai do loop interno após encontrar os dados do caminhão
+
+    # Resumo da disponibilidade centralizado e em destaque
     st.markdown("<br>", unsafe_allow_html=True)
     if dfs_caminhoes:
         total_df = sum(dfs_caminhoes) / len(dfs_caminhoes)
-        total_utilizacao = sum(utilizacoes) / len(utilizacoes)
-
-        # Exibe a disponibilidade da frota em uma caixa com área sombreada
+        total_utilizacao= sum(utilizacoes)/len(utilizacoes)
+    # Exibe a disponibilidade da frota em uma caixa com área sombreada
         st.markdown(
             f"""
             <div style="background-color: #f0f0f5; padding: 10px; border-radius: 5px;">
@@ -254,11 +296,13 @@ with col2:
             """,
             unsafe_allow_html=True,
         )
+  
     else:
         st.write("**Nenhum dado de caminhão disponível.**")
 
-# --- Página Produtividade ---
+# Cria uma nova página
 def pagina_produtividade():
+
     # Título da aba
     st.title("Cálculo da Produtividade Horária da Mina")
 
@@ -310,81 +354,71 @@ def pagina_produtividade():
             velocidade_descida_vazio,
         ]
     ):
-        try:
-            # Calcula os tempos de ciclo
-            tempo_horizontal_carregado = calcular_tempo_ciclo(
-                distancia_horizontal, velocidade_horizontal_carregado
-            )
-            tempo_horizontal_vazio = calcular_tempo_ciclo(
-                distancia_horizontal, velocidade_horizontal_vazio
-            )
-            tempo_subida_carregado = calcular_tempo_ciclo(
-                distancia_subida, velocidade_subida_carregado
-            )
-            tempo_subida_vazio = calcular_tempo_ciclo(
-                distancia_subida, velocidade_subida_vazio
-            )
-            tempo_descida_carregado = calcular_tempo_ciclo(
-                distancia_descida, velocidade_descida_carregado
-            )
-            tempo_descida_vazio = calcular_tempo_ciclo(
-                distancia_descida, velocidade_descida_vazio
-            )
+        # Calcula os tempos de ciclo
+        tempo_horizontal_carregado = calcular_tempo_ciclo(
+            distancia_horizontal, velocidade_horizontal_carregado
+        )
+        tempo_horizontal_vazio = calcular_tempo_ciclo(
+            distancia_horizontal, velocidade_horizontal_vazio
+        )
+        tempo_subida_carregado = calcular_tempo_ciclo(
+            distancia_subida, velocidade_subida_carregado
+        )
+        tempo_subida_vazio = calcular_tempo_ciclo(
+            distancia_subida, velocidade_subida_vazio
+        )
+        tempo_descida_carregado = calcular_tempo_ciclo(
+            distancia_descida, velocidade_descida_carregado
+        )
+        tempo_descida_vazio = calcular_tempo_ciclo(
+            distancia_descida, velocidade_descida_vazio
+        )
 
-            # Calcula o tempo total de ciclo
-            tempo_ciclo_total = calcular_tempo_ciclo_total(
-                tempo_horizontal_carregado + tempo_horizontal_vazio,
-                tempo_subida_carregado + tempo_subida_vazio,
-                tempo_descida_carregado + tempo_descida_vazio,
-            )
+        # Calcula o tempo total de ciclo
+        tempo_ciclo_total = calcular_tempo_ciclo_total(
+            tempo_horizontal_carregado + tempo_horizontal_vazio,
+            tempo_subida_carregado + tempo_subida_vazio,
+            tempo_descida_carregado + tempo_descida_vazio,
+        )
 
-            # Calcula a capacidade líquida do caminhão
-            capacidade_liquida = calcular_capacidade_liquida(
-                capacidade_caminhao, fator_enchimento
-            )
+        # Calcula a capacidade líquida do caminhão
+        capacidade_liquida = calcular_capacidade_liquida(
+            capacidade_caminhao, fator_enchimento
+        )
 
-            # Calcula a produtividade horária
-            produtividade_horaria = calcular_produtividade_horaria(
-                capacidade_liquida, tempo_ciclo_total
-            )
+        # Calcula a produtividade horária
+        produtividade_horaria = calcular_produtividade_horaria(
+            capacidade_liquida, tempo_ciclo_total
+        )
 
-            # Exibe os resultados
-            st.header("Resultados:")
-            st.write(
-                f"Tempo de Ciclo Horizontal Carregado: {tempo_horizontal_carregado:.2f} minutos"
-            )
-            st.write(
-                f"Tempo de Ciclo Horizontal Vazio: {tempo_horizontal_vazio:.2f} minutos"
-            )
-            st.write(f"Tempo de Ciclo Subida Carregado: {tempo_subida_carregado:.2f} minutos")
-            st.write(f"Tempo de Ciclo Subida Vazio: {tempo_subida_vazio:.2f} minutos")
-            st.write(
-                f"Tempo de Ciclo Descida Carregado: {tempo_descida_carregado:.2f} minutos"
-            )
-            st.write(f"Tempo de Ciclo Descida Vazio: {tempo_descida_vazio:.2f} minutos")
-            st.write(f"Tempo Total de Ciclo: {tempo_ciclo_total:.2f} minutos")
-            st.write(f"Capacidade Líquida do Caminhão: {capacidade_liquida:.2f} toneladas")
-            st.write(f"Produtividade Horária da Mina: {produtividade_horaria:.2f} Ton/h")
-
-        except ValueError as e:
-            st.error(f"Erro nos cálculos: {e}")
+        # Exibe os resultados
+        st.header("Resultados:")
+        st.write(
+            f"Tempo de Ciclo Horizontal Carregado: {tempo_horizontal_carregado:.2f} minutos"
+        )
+        st.write(
+            f"Tempo de Ciclo Horizontal Vazio: {tempo_horizontal_vazio:.2f} minutos"
+        )
+        st.write(f"Tempo de Ciclo Subida Carregado: {tempo_subida_carregado:.2f} minutos")
+        st.write(f"Tempo de Ciclo Subida Vazio: {tempo_subida_vazio:.2f} minutos")
+        st.write(
+            f"Tempo de Ciclo Descida Carregado: {tempo_descida_carregado:.2f} minutos"
+        )
+        st.write(f"Tempo de Ciclo Descida Vazio: {tempo_descida_vazio:.2f} minutos")
+        st.write(f"Tempo Total de Ciclo: {tempo_ciclo_total:.2f} minutos")
+        st.write(f"Capacidade Líquida do Caminhão: {capacidade_liquida:.2f} toneladas")
+        st.write(f"Produtividade Horária da Mina: {produtividade_horaria:.2f} Ton/h")
 
     else:
         st.error(
             "Pelo menos uma distância ou velocidade deve ser maior que zero. Verifique os dados de entrada."
         )
+# Mecanismo de navegação
+app = MultiPage()
 
-# --- Navegação Entre Páginas (Usando Tabs Nativas) ---
-# Para simplificar e evitar problemas com a classe MultiPage, usaremos tabs nativas do Streamlit.
+# Adiciona as páginas ao objeto MultiPage
+app.add_page("Disponibilidade e Utilização", lambda: None)  # Página principal
+app.add_page("Produtividade Horária", pagina_produtividade)
 
-st.sidebar.markdown("---")
-st.sidebar.markdown("<h3 style='text-align: center;'>Navegação</h3>", unsafe_allow_html=True)
-pagina = st.sidebar.radio(
-    "Selecione a página:", ("Disponibilidade e Utilização", "Produtividade Horária")
-)
-
-if pagina == "Disponibilidade e Utilização":
-    # Tudo o que está acima referente à Disponibilidade e Utilização já está sendo exibido
-    pass  # Nenhuma ação adicional necessária
-elif pagina == "Produtividade Horária":
-    pagina_produtividade()
+# Executa o aplicativo MultiPage
+app.run()
