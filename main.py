@@ -168,11 +168,16 @@ with col1:
                 ) = calcular_utilizacao(dados_caminhao)
                 tempo_total_parado = calcular_tempo_parado(dados_caminhao)
                 df = calcular_df(tempo_total_parado)  # Calcula a DF aqui
-                st.write(f"Utilização: {utilizacao:.2f}%")
-                st.write(f"Horas não utilizadas: {horas_nao_utilizadas:.2f}")
-                st.write(f"Horas trabalhadas: {horas_trabalhadas:.2f}")
-                st.write(f"Horas disponíveis: {horas_disponiveis:.2f}")
-                st.write(f"DF: {df:.2f}%")  # Exibe a DF aqui
+                col_utilizacao, col_tempos = st.columns(2)
+                with col_utilizacao:
+                    st.container()
+                    st.write(f"Utilização: {utilizacao:.2f}%")
+                    st.write(f"Horas não utilizadas: {horas_nao_utilizadas:.2f}")
+                    st.write(f"Horas trabalhadas: {horas_trabalhadas:.2f}")
+                with col_tempos:
+                    st.container()
+                    st.write(f"Horas disponíveis: {horas_disponiveis:.2f}")
+                    st.write(f"DF: {df:.2f}%")  # Exibe a DF aqui
                 
 
                 # Calcula e exibe o tempo perdido em cada operação
