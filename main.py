@@ -415,3 +415,12 @@ def pagina_produtividade():
         st.error(
             "Pelo menos uma distância ou velocidade deve ser maior que zero. Verifique os dados de entrada."
         )
+# Mecanismo de navegação
+st.sidebar.markdown("---")
+st.sidebar.markdown("<h3 style='text-align: center;'>Navegação</h3>", unsafe_allow_html=True)
+paginas = {
+    "Disponibilidade e Utilização": lambda: None,  # Página principal (não faz nada)
+    "Produtividade Horária": pagina_produtividade,
+}
+pagina_selecionada = st.sidebar.radio("Selecione a página:", list(paginas.keys()))
+paginas[pagina_selecionada]()
