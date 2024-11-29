@@ -6,6 +6,10 @@ from calculos import (
     calcular_utilizacao,
     calcular_tempo_perdido,
     calcular_tempo_total,
+    calcular_tempo_ciclo,
+    calcular_tempo_ciclo_total,
+    calcular_capacidade_liquida,
+    calcular_produtividade_horaria
 )
 from graficos import gerar_grafico, gerar_grafico_df_utilizacao
 
