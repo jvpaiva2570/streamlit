@@ -268,7 +268,7 @@ with col2:
     if dfs_caminhoes:
         total_df = sum(dfs_caminhoes) / len(dfs_caminhoes)
         total_utilizacao= sum(utilizacoes)/len(utilizacoes)
-        st.metric("Disponibilidade da frota", "f{total_df:.2f}%")
-        st.metric("Utilização da frota", "f{total_utilizacao:.2f}%")
+        st.metric("Disponibilidade da Frota", f"{total_df:.2f}%")
+        st.metric("Utilização da Frota", f"{total_utilizacao:.2f}%")
     else:
         st.write("**Nenhum dado de caminhão disponível.**")
